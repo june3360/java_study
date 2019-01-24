@@ -36,4 +36,6 @@ public interface IBookManager {
 	public void open();
 	
 	public void close();
+	public void send();
+	
 }

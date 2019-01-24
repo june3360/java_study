@@ -1,14 +1,23 @@
 package com.ssafy;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Scanner;
+
 
 /**
  * @author itsme
@@ -17,6 +26,9 @@ import java.util.List;
 public class BookManager implements IBookManager {
 	private List<Book> books;
 	int index;
+	private Socket socket;
+	private BufferedWriter bw;
+
 	private static BookManager manager = new BookManager();
 
 	public static BookManager getManager() {
@@ -195,6 +207,35 @@ public class BookManager implements IBookManager {
 			oos.writeObject(books);
 		}catch(IOException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public void send() {
+		new BookClient().start();
+	}
+	class BookClient extends Thread{
+		Socket s = null;
+		public void run() {
+			try {
+				Socket s = new Socket("localhost",8888);
+				ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+				out.writeObject(books);
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				if(s!=null) {
+					try {
+						s.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 	}
 }
